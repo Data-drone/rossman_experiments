@@ -8,9 +8,10 @@ As well as develop more methodical approaches to doing data science.
 
 folder structure is:
 
-root - data (put data here)
-     - feat_table
-     - model
-     - submission
+root 
+..* data (put data here)
+..* feat_table
+..* model
+..* submission
      
 all the notebooks and python scripts sit in the root folder

@@ -8,16 +8,19 @@ y_valid = pickle.load(open( 'feat_table/xgb_1_y_valid_table.pkl', "rb" ))
 test = pickle.load(open( 'feat_table/xgb_1_test_table.pkl', "rb" ))
 features = pickle.load(open( 'feat_table/xgb_1_features_vector_vector.pkl', "rb" ))
 
+# keras libs
 from keras.models import Sequential
 from keras.layers import LSTM, Dense, Flatten, Dropout
 import numpy as np
 
+# reformatting
 x_train_array = np.copy(X_train[features].values)
 x_valid_array = np.copy(X_valid[features].values)
 
 format_sub_train_x = x_train_array.reshape((x_train_array.shape[0], 1, x_train_array.shape[1]) )
 format_sub_val_x = x_valid_array.reshape((x_valid_array.shape[0], 1, x_valid_array.shape[1]) )
 
+# custom loss function
 from keras import backend as K
 def mean_squared_percentage_error(y_true, y_pred):
     return K.mean(K.square((y_true - y_pred) / K.clip(K.abs(y_true),
@@ -25,6 +28,7 @@ def mean_squared_percentage_error(y_true, y_pred):
                                             None)), axis=-1)
 mspe = MSPE = mean_squared_percentage_error
 
+# model added extra layer
 model = Sequential()
 model.add(LSTM(500, input_shape=(format_sub_train_x.shape[1], format_sub_train_x.shape[2]), 
                return_sequences = True) )
@@ -36,6 +40,7 @@ model.add(Dense(1))
 
 model.compile(loss=mean_squared_percentage_error, optimizer='adam')
 
+# model 4 training
 mod_4 = model.fit(format_sub_train_x, np.copy(y_train), epochs=200, batch_size=400, 
                     validation_data=(format_sub_val_x, np.copy(y_valid)), verbose=2, shuffle=False)
 

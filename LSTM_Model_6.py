@@ -26,22 +26,19 @@ def mean_squared_percentage_error(y_true, y_pred):
     return K.mean(K.square((y_true - y_pred) / K.clip(K.abs(y_true),
                                             K.epsilon(),
                                             None)), axis=-1)
-mspe = MSPE = mean_squared_percentage_error
+# mspe = MSPE = mean_squared_percentage_error
 
-# model added extra layer
-model = Sequential()
-model.add(LSTM(400, input_shape=(format_sub_train_x.shape[1], format_sub_train_x.shape[2]), 
-               return_sequences = True) )
-model.add(Dropout(0.2))
-model.add(LSTM(400, return_sequences = True) )
-model.add(Dropout(0.2))
-model.add(LSTM(400, return_sequences = True))
-model.add(Dropout(0.2))
-model.add(LSTM(400))
-model.add(Dense(1))
+model_input = Input( shape = (format_sub_train_x.shape[1], format_sub_train_x.shape[2]) )
+lstm_1 = LSTM(100, return_sequences=True)(model_input)
+dropout_mod = Dropout(0.2)(lstm_1)
+lstm_2 = LSTM(100)(dropout_mod)
+dropout_mod_2 = Dropout(0.2)(lstm_2)
+output = Dense(1)(dropout_mod_2)
+model = Model(inputs = model_input, outputs = output)
 
+# model convert to functional API
 model.compile(loss=mean_squared_percentage_error, optimizer='adam')
-model.save('model/LSTM_Model_5.h5')
+model.save('model/LSTM_Model_6.h5')
 
 # model 5 training
 mod_5 = model.fit(format_sub_train_x, np.copy(y_train), epochs=350, batch_size=100, 
@@ -56,5 +53,5 @@ test_probs = model.predict(test_frame)
 import pandas as pd
 result = pd.DataFrame({"Id": test["Id"], 'Sales': np.expm1(test_probs.flatten())})
 
-result.to_csv("submission/lstm_model_5_submission.csv", index=False)
+result.to_csv("submission/lstm_model_6_submission.csv", index=False)
 
